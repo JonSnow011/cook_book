@@ -1,0 +1,154 @@
+2.txt
+1
+Тревога началась в тринадцать часов ноль две минуты. 
+1.txt
+8
+Начальник  полиции
+лично позвонил в шестнадцатый участок. А спустя  одну минуту тридцать секунд
+в дежурке и других комнатах нижнего этажа раздались звонки
+     Когда Иенсен  --  комиссар  шестнадцатого  участка --  вышел  из своего
+кабинета,  звонки еще  не смолкли. Иенсен был мужчина средних лет,  обычного
+сложения, с лицом плоским и невыразительным. На последней ступеньке винтовой
+лестницы  он задержался  и  обвел взглядом помещение дежурки. Затем поправил
+галстук и проследовал к машине.
+3.txt
+9
+   В  это время  дня  машины текли сплошным  блестящим  потоком,  а  среди
+потока, будто  колонны из бетона  и стекла, высились  здания. Здесь,  в мире
+резких граней,  люди  на тротуарах  выглядели  несчастными и  неприкаянными.
+Одеты они были хорошо, но как-то удивительно походили друг на друга и все до
+одного спешили. Они шли нестройными  вереницами, широко разливались, завидев
+красный  светофор или  металлический  блеск кафе-автоматов.  Они непрестанно
+озирались по сторонам и теребили портфели и сумочки.
+     Полицейские  машины  с  включенными  сиренами  пробивались  сквозь  эту
+толчею.
+recipes.txt
+26
+Омлет
+3
+Яйцо | 2 | шт
+Молоко | 100 | мл
+Помидор | 2 | шт
+
+Утка по-пекински
+4
+Утка | 1 | шт
+Вода | 2 | л
+Мед | 3 | ст.л
+Соевый соус | 60 | мл
+
+Запеченный картофель
+3
+Картофель | 1 | кг
+Чеснок | 3 | зубч
+Сыр гауда | 100 | г
+
+Фахитос
+5
+Говядина | 500 | г
+Перец сладкий | 1 | шт
+Лаваш | 2 | шт
+Винный уксус | 1 | ст.л
+Помидор | 2 | шт
+recipe_functions.py
+26
+def get_recipe(file_name):
+    cook_book = {}
+    with open(file_name, 'r', encoding='utf-8') as file:
+        while True:
+            dish_name = file.readline().strip()
+            if not dish_name:
+                break
+            ingredients = []
+            num_of_ingredients = int(file.readline().strip())
+            for _ in range(num_of_ingredients):
+                ingredient, quantity, measure = file.readline().strip().split(' | ')
+                ingredients.append({'ingredient_name': ingredient, 'quantity': int(quantity), 'measure': measure})
+            cook_book[dish_name] = ingredients
+            file.readline()  # Пропускаем пустую строку между блюдами
+    return cook_book
+
+def main():
+    file_name = 'recipes.txt'  # Предположим, что ваши данные находятся в файле recipes.txt
+    cook_book = get_recipe(file_name)
+    for dish, ingredients in cook_book.items():
+        print(dish)
+        for ingredient in ingredients:
+            print(ingredient)
+
+if __name__ == "__main__":
+    main()
+Task 3.py
+31
+import os
+
+# Функция для чтения содержимого файла и получения количества строк
+def read_file(file):
+    with open(file, 'r', encoding='utf-8') as f:
+        content = f.readlines()
+    return content, len(content)
+
+# Получаем список файлов в текущей директории
+files = [file for file in os.listdir() if os.path.isfile(file)]
+
+# Создаем список для хранения содержимого и количества строк в каждом файле
+file_contents = []
+
+# Читаем содержимое каждого файла и добавляем его в список file_contents
+for file in files:
+    content, num_lines = read_file(file)
+    file_contents.append((file, num_lines, content))
+
+# Сортируем список file_contents по количеству строк в каждом файле
+file_contents.sort(key=lambda x: x[1])
+
+# Записываем отсортированное содержимое файлов в новый файл
+output_filename = "output.txt"
+with open(output_filename, 'w', encoding='utf-8') as output_file:
+    for file_info in file_contents:
+        output_file.write(f"{file_info[0]}\n{file_info[1]}\n")
+        output_file.writelines(file_info[2])
+        output_file.write("\n")
+
+print("Файл успешно создан:", output_filename)
+main.py
+39
+from recipe_functions import get_recipe
+
+def get_shop_list_by_dishes(dishes, person_count, cook_book):
+    shop_list = {}
+
+    for dish in dishes:
+        for ingredient in cook_book[dish]:
+            ingredient_name = ingredient['ingredient_name']
+            if ingredient_name in shop_list:
+                shop_list[ingredient_name]['quantity'] += ingredient['quantity'] * person_count
+            else:
+                shop_list[ingredient_name] = {
+                    'measure': ingredient['measure'],
+                    'quantity': ingredient['quantity'] * person_count
+                }
+    return shop_list
+
+if __name__ == "__main__":
+    cook_book = {
+        'Омлет': [
+            {'ingredient_name': 'Яйцо', 'quantity': 2, 'measure': 'шт'},
+            {'ingredient_name': 'Молоко', 'quantity': 100, 'measure': 'мл'},
+            {'ingredient_name': 'Помидор', 'quantity': 2, 'measure': 'шт'}
+        ],
+        'Утка по-пекински': [
+            {'ingredient_name': 'Утка', 'quantity': 1, 'measure': 'шт'},
+            {'ingredient_name': 'Вода', 'quantity': 2, 'measure': 'л'},
+            {'ingredient_name': 'Мед', 'quantity': 3, 'measure': 'ст.л'},
+            {'ingredient_name': 'Соевый соус', 'quantity': 60, 'measure': 'мл'}
+        ],
+        'Запеченный картофель': [
+            {'ingredient_name': 'Картофель', 'quantity': 1, 'measure': 'кг'},
+            {'ingredient_name': 'Чеснок', 'quantity': 3, 'measure': 'зубч'},
+            {'ingredient_name': 'Сыр гауда', 'quantity': 100, 'measure': 'г'},
+        ]
+    }
+
+    result = get_shop_list_by_dishes(['Запеченный картофель', 'Омлет'], 2, cook_book)
+    print(result)
